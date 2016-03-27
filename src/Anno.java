@@ -1,28 +1,20 @@
-import java.awt.AWTException;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.util.Random;
-
-import javax.imageio.ImageIO;
+import java.io.IOException;
 import javax.swing.JOptionPane;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Anno {
+	private static final String USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+	private static final String site = "http://www.google.com/search?q=fun+fact&gws_rd=cr";
+	private static final Random RND = new Random();
+
 	static int MIN_TIME = 1000;
 	static int MAX_TIME = 3000;
-	static Random rnd = new Random();
-	static String site = "https://www.google.com/search?q=fun+fact";
+
 	static Document document;
-	static Rectangle frame = new Rectangle(0, 0, getScreenWidth(), getsScreenHeight());
-	private static DateFormat timeFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
 
 	public static void main(String[] args) {
 
@@ -32,36 +24,17 @@ public class Anno {
 		} catch (Exception e) {
 		}
 
-		Robot robot1 = null;
-		try {
-			robot1 = new Robot();
-		} catch (AWTException e2) {
-		}
-
 		int waitTime;
 		for (;;) {
 			try {
 				try {
-					if (robot1 != null) {
-						BufferedImage buff = robot1.createScreenCapture(frame);
-						String time = timeFormat.format(System.currentTimeMillis());
-						System.out.println(time);
-						File path = new File("pic_" + System.currentTimeMillis() + ".png");
-						ImageIO.write(buff, "png", path);
-						System.out.println(path);
-					}
-
-					// document = Jsoup.connect(site).followRedirects(true).timeout(1000).get();
-					// Elements value2 = document.body().select("#_dNh");
-					// System.out.println(document);
-					// Element s = value2.get(1);
-					// String a = s.text();
-					// String value = document.body().select("#element1").get(0).text();
-					// System.out.println(value2);
-					// System.out.println(s);
-					// System.out.println(a);
+					document = Jsoup.connect(site).userAgent(USER_AGENT).timeout(5000).get();
+					System.out.println(document);
+					Elements e = document.body().select("div#_OKe");
+					System.out.println(e.size());
 
 				} catch (IOException e1) {
+					e1.printStackTrace();
 					System.out.println("timeout");
 					continue;
 				}
@@ -77,20 +50,20 @@ public class Anno {
 		}
 	}
 
-	public static int getSleepTime() {
-		return MIN_TIME + rnd.nextInt(MAX_TIME - MIN_TIME + 1);
+	private static int getSleepTime() {
+		return MIN_TIME + RND.nextInt(MAX_TIME - MIN_TIME + 1);
 	}
 
-	public static void rawMsg(String msg, String title, int type) {
+	private static void rawMsg(String msg, String title, int type) {
 		java.awt.Toolkit.getDefaultToolkit().beep();
 		JOptionPane.showMessageDialog(null, msg, title, type);
 	}
 
-	static int getScreenWidth() {
+	private static int getScreenWidth() {
 		return java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width;
 	}
 
-	static int getsScreenHeight() {
+	private static int getsScreenHeight() {
 		return java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().height;
 	}
 }
